@@ -15,3 +15,6 @@ export const itemsTable = pgTable("items", {
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
+
+export type DbItem = typeof itemsTable.$inferSelect;
+export type NewDbItem = typeof itemsTable.$inferInsert;

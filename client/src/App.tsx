@@ -1,11 +1,24 @@
-import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Loader2Icon, Trash2Icon } from "lucide-react";
+import { Fragment, useEffect, useState } from "react";
 import AddItemForm from "./add-item-form";
+import {
+  Item,
+  ItemActions,
+  ItemContent,
+  ItemDescription,
+  ItemGroup,
+  ItemSeparator,
+  ItemTitle,
+} from "./components/ui/item";
+
+import type { DbItem } from "../../server/src/db/schema";
 
 function App() {
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState<DbItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [shouldFetchItems, setShouldFetchItems] = useState(0);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const handleClick = () => {
     setLoading(true);
@@ -16,7 +29,7 @@ function App() {
       .finally(() => setLoading(false));
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     setDeletingId(id);
     fetch(`http://localhost:3000/item/${id}`, {
       method: "DELETE",
@@ -46,29 +59,42 @@ function App() {
   return (
     <div className="flex flex-col gap-4 h-screen p-4">
       <h1 className="text-5xl font-bold">Items</h1>
-      <div className="grid grid-cols-3 gap-4 max-h-[500px] overflow-y-auto">
-        {items.map((item: any) => (
-          <div key={item.id} className="border p-4 rounded-md flex flex-col justify-between gap-2">
-            <div>
-              <h2 className="font-bold text-xl">{item.name}</h2>
-              <p className="text-gray-600">{item.description}</p>
-            </div>
-            <button
-              className="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 disabled:bg-red-300 transition-colors self-end"
-              onClick={() => handleDelete(item.id)}
-              disabled={deletingId === item.id}
-            >
-              {deletingId === item.id ? "Deleting..." : "Delete"}
-            </button>
-          </div>
-        ))}
+      <div className="max-h-[500px] overflow-y-auto">
+        <ItemGroup>
+          {items.map((item, index) => (
+            <Fragment key={item.id}>
+              <Item>
+                <ItemActions className="font-mono text-xs">
+                  ${item.price}
+                </ItemActions>
+                <ItemContent className="gap-1">
+                  <ItemTitle>{item.name}</ItemTitle>
+                  <ItemDescription>{item.description}</ItemDescription>
+                </ItemContent>
+                <ItemActions>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="rounded-full"
+                    onClick={() => handleDelete(item.id)}
+                    disabled={deletingId === item.id}
+                  >
+                    {deletingId === item.id ? (
+                      <Loader2Icon className="animate-spin" />
+                    ) : (
+                      <Trash2Icon className="text-destructive" />
+                    )}
+                  </Button>
+                </ItemActions>
+              </Item>
+              {index !== items.length - 1 && <ItemSeparator />}
+            </Fragment>
+          ))}
+        </ItemGroup>
       </div>
-      <button
-        className="border px-4 py-2 rounded-md hover:bg-stone-400 bg-stone-600 cursor-pointer"
-        onClick={handleClick}
-      >
+      <Button onClick={handleClick} variant="default">
         {loading ? "Loading..." : "Fetch items"}
-      </button>
+      </Button>
       <AddItemForm onAdd={() => setShouldFetchItems(shouldFetchItems + 1)} />
     </div>
   );

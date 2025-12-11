@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "./components/ui/button";
 
 export default function AddItemForm({ onAdd }: { onAdd: () => void }) {
   const [name, setName] = useState("asdasd");
@@ -42,12 +43,7 @@ export default function AddItemForm({ onAdd }: { onAdd: () => void }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <button
-          type="submit"
-          className="border px-4 py-2 rounded-md hover:bg-stone-400 bg-stone-600 cursor-pointer"
-        >
-          {loading ? "Loading..." : "Add Item"}
-        </button>
+        <Button type="submit">{loading ? "Loading..." : "Add Item"}</Button>
       </form>
       {message && <div>{message}</div>}
     </div>

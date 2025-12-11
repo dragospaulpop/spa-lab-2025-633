@@ -64,6 +64,8 @@ app.patch("/item/:id", (c) => {
 app.delete("/item/:id", async (c) => {
   const id = c.req.param("id");
 
+  await Bun.sleep(5000);
+
   await db.delete(itemsTable).where(eq(itemsTable.id, id));
 
   return c.json({
