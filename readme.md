@@ -32,6 +32,14 @@ For more installation options and platform-specific instructions, visit the [Bun
 
 This project consists of a server and a client that need to be run separately.
 
+### Running Postgres in Docker
+
+1. Navigate to the root golder of the project (make sure docker-compsoe.yml is there and make sure Docker Desktop is started):
+
+```bash
+docker compose up
+```
+
 ### Running the Server
 
 1. Navigate to the server directory:
@@ -50,6 +58,18 @@ bun install
 
 ```bash
 bun run dev
+```
+
+4. Running migrations:
+
+```bash
+bun run db:migrate
+```
+
+5. Using Drizzle Studio to manage data:
+
+```bash
+bun run db:studio
 ```
 
 The server will start with hot reload enabled and typically run on `http://localhost:3000`.
