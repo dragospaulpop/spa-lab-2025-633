@@ -1,9 +1,11 @@
+import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
 import "dotenv/config";
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
+import z from "zod";
 import { itemsTable } from "./db/schema";
 
 const db = drizzle(process.env.DATABASE_URL!);
@@ -35,20 +37,49 @@ app.get("/item/:id", async (c) => {
 });
 
 // create a new item
-app.post("/item", async (c) => {
-  const { name, description } = await c.req.json();
-  const item = { name, description, price: "100" };
+app.post(
+  "/item",
+  zValidator(
+    "json",
+    z.object({
+      name: z
+        .string()
+        .min(3, "Name must be at least 5 characters.")
+        .max(32, "Name must be at most 32 characters."),
+      description: z
+        .string()
+        .min(10, "Description must be at least 20 characters.")
+        .max(100, "Description must be at most 100 characters."),
+      price: z
+        .number()
+        .min(0.01, "Price must be greater than 0.")
+        .transform((val) => val.toString()),
+    })
+  ),
+  async (c) => {
+    const item = c.req.valid("json");
 
-  await db.insert(itemsTable).values(item);
+    try {
+      await db.insert(itemsTable).values(item);
+    } catch (error: unknown) {
+      return c.json(
+        {
+          success: false,
+          message: (error as Error)?.message || "Failed to create item",
+        },
+        500
+      );
+    }
 
-  return c.json(
-    {
-      success: true,
-      message: "Item created successfully",
-    },
-    201
-  );
-});
+    return c.json(
+      {
+        success: true,
+        message: "Item created successfully",
+      },
+      201
+    );
+  }
+);
 
 // update an existing item by completely replacing it
 app.put("/item/:id", (c) => {
@@ -63,8 +94,6 @@ app.patch("/item/:id", (c) => {
 // delete an existing item
 app.delete("/item/:id", async (c) => {
   const id = c.req.param("id");
-
-  await Bun.sleep(5000);
 
   await db.delete(itemsTable).where(eq(itemsTable.id, id));
 

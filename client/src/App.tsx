@@ -13,6 +13,7 @@ import {
 } from "./components/ui/item";
 
 import type { DbItem } from "../../server/src/db/schema";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
   const [items, setItems] = useState<DbItem[]>([]);
@@ -58,6 +59,7 @@ function App() {
 
   return (
     <div className="flex flex-col gap-4 h-screen p-4">
+      <Toaster richColors />
       <h1 className="text-5xl font-bold">Items</h1>
       <div className="max-h-[500px] overflow-y-auto">
         <ItemGroup>
