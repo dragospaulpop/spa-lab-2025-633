@@ -1,28 +1,5 @@
 import { relations } from "drizzle-orm";
-import {
-  boolean,
-  index,
-  numeric,
-  pgTable,
-  text,
-  timestamp,
-  uuid,
-  varchar,
-} from "drizzle-orm/pg-core";
-
-export const itemsTable = pgTable("items", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar({ length: 255 }).notNull(),
-  description: text().notNull(),
-  price: numeric("price").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-export type DbItem = typeof itemsTable.$inferSelect;
-export type NewDbItem = typeof itemsTable.$inferInsert;
-
-
+import { pgTable, text, timestamp, boolean, index } from "drizzle-orm/pg-core";
 
 export const user = pgTable("user", {
   id: text("id").primaryKey(),
@@ -114,4 +91,3 @@ export const accountRelations = relations(account, ({ one }) => ({
     references: [user.id],
   }),
 }));
-

@@ -4,14 +4,24 @@ import { cors } from "hono/cors";
 
 import "dotenv/config";
 import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/node-postgres";
+
 import z from "zod";
 import { itemsTable } from "./db/schema";
 
-const db = drizzle(process.env.DATABASE_URL!);
+import { db } from "./db/index";
+import { auth } from "./auth/auth";
 
 const app = new Hono();
-app.use(cors());
+app.use(cors({
+  origin: "http://localhost:5173",
+  allowMethods: ["GET", "POST", "OPTIONS"],
+  allowHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+  exposeHeaders: ["Content-Length"],
+  maxAge: 600,
+}));
+
+app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 // list all items
 app.get("/item", async (c) => {
@@ -26,8 +36,8 @@ app.get("/item", async (c) => {
 // get a single item
 app.get("/item/:id", async (c) => {
   const id = c.req.param("id");
-  const items = await db.select().from(itemsTable);
-  const item = items.find((item) => item.id === id);
+  const [item] = await db.select().from(itemsTable).where(eq(itemsTable.id, id)).limit(1);
+
   const success = !!item;
   const status = success ? 200 : 404;
   const message = success ? "Item fetched successfully" : "Item not found";

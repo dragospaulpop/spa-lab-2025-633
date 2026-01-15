@@ -15,6 +15,13 @@
       "when": 1765449023800,
       "tag": "0001_luxuriant_thunderbolts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1768473368023,
+      "tag": "0002_plain_sebastian_shaw",
+      "breakpoints": true
     }
   ]
 }
